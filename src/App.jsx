@@ -4,6 +4,7 @@ import ProductList from "./components/ProductList";
 import StatsPanel from "./components/StatsPanel";
 import Filters from "./components/Filters";
 import { handleExport } from "./components/Exports";
+import StatsCharts from "./components/Charts";
 
 function App() {
   const [products, setProducts] = useState([]);
@@ -18,7 +19,7 @@ function App() {
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(20);
   const [format, setFormat] = useState("");
-
+  const [showChart, setShowChart] = useState(false);
 
   useEffect(() => {
     axios.get("https://dummyjson.com/products/categories")
@@ -86,6 +87,8 @@ function App() {
       <div className="p-4 max-w-7xl mx-auto">
         <h1 className="text-3xl font-bold text-center">Productos</h1>
 
+        
+
         {/* Seleccion de formatos de descarga */}
         <select onChange={(e) => setFormat(e.target.value)} value={format}>
           <option value="">Seleccionar formáto</option>
@@ -97,7 +100,7 @@ function App() {
         {/* <button onClick={handleExport}>Exportar archivo</button> 
         al modularizar pierde acceso al estado local (format,filteredProducts),
         pasamos explicitamente como argumentos*/}
-<button onClick={() => handleExport(format, filteredProducts)}>Exportar archivo</button>
+        <button onClick={() => handleExport(format, filteredProducts)}>Exportar archivo</button>
 
         <Filters
           search={search}
@@ -160,7 +163,15 @@ function App() {
           >
             {show ? "Ocultar estadísticas" : "Mostrar estadísticas"}
           </button>
+
+
         </div>
+        <button onClick={() => setShowChart(!showChart)}>
+          {showChart ? "Ocultar gráfico" : "Mostrar gráfico"}
+        </button>
+        {showChart && <StatsCharts products={filteredProducts} />}
+
+
 
         {show && <StatsPanel products={filteredProducts} />}
       </div>
