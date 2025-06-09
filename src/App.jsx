@@ -3,6 +3,7 @@ import { useEffect, useState, useRef } from "react";
 import ProductList from "./components/ProductList";
 import StatsPanel from "./components/StatsPanel";
 import Filters from "./components/Filters";
+import { handleExport } from "./components/Exports";
 
 function App() {
   const [products, setProducts] = useState([]);
@@ -14,10 +15,10 @@ function App() {
   const [sortOrder, setSortOrder] = useState("asc");
   const [categories, setCategories] = useState([]);
   const containerRef = useRef(null);
-
   const [page, setPage] = useState(1);
-
   const [limit, setLimit] = useState(20);
+  const [format, setFormat] = useState("");
+
 
   useEffect(() => {
     axios.get("https://dummyjson.com/products/categories")
@@ -73,22 +74,36 @@ function App() {
       return sortOrder === "asc" ? valA - valB : valB - valA;
     });
 
+
   return (
-  /*   Modo Claro oscuro Set */
+    /*   Modo Claro oscuro Set */
     <div ref={containerRef}>
       <button className="toggleMode" onClick={toggleDark}>
         Activar modo {dark ? "claro" : "oscuro"}
       </button>
 
-       {/* Productos con filtros */}
+      {/* Productos con filtros */}
       <div className="p-4 max-w-7xl mx-auto">
         <h1 className="text-3xl font-bold text-center">Productos</h1>
+
+        {/* Seleccion de formatos de descarga */}
+        <select onChange={(e) => setFormat(e.target.value)} value={format}>
+          <option value="">Seleccionar formáto</option>
+          <option value="json">JSON</option>
+          <option value="csv">CSV</option>
+          <option value="excel">Excel</option>
+        </select>
+
+        {/* <button onClick={handleExport}>Exportar archivo</button> 
+        al modularizar pierde acceso al estado local (format,filteredProducts),
+        pasamos explicitamente como argumentos*/}
+<button onClick={() => handleExport(format, filteredProducts)}>Exportar archivo</button>
 
         <Filters
           search={search}
           setSearch={setSearch}
           category={category}
-          setCategory={(setCategory)}
+          setCategory={setCategory}
           categories={categories}
           sortField={sortField}
           setSortField={setSortField}
@@ -107,7 +122,7 @@ function App() {
         <br />
 
         <small> Página: {page}</small>
-           {/* Deshabilito botón si pagina es igual a 1 */}
+        {/* Deshabilito botón si pagina es igual a 1 */}
         <button disabled={page === 1} onClick={() => setPage(page - 1)}>
           Página Anterior
         </button>
