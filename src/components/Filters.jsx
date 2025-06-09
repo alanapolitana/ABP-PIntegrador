@@ -26,11 +26,11 @@ function Filters({
         onChange={(e) => setCategory(e.target.value)}
         className="border p-3 w-full rounded"
       >
-        {categories.map((cat) => (
-          <option key={cat} value={cat}>
-            {cat === "all" ? "Todas las categorías" : cat}
-          </option>
-        ))}
+        {categories
+          .filter(cat => cat && cat.name && cat.name.trim() !== "")
+          .map((cat) => (
+            <option key={cat.slug} value={cat.slug}>{cat.name}</option>
+          ))}
       </select>
 
       <div className="flex gap-2">
