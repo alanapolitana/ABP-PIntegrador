@@ -60,3 +60,6 @@ Escribir en el campo de búsqueda para filtrar productos y ver las estadísticas
 ### Panel de estadísticas
 
 ![Panel de estadísticas](./src/assets/estadisticas.jpeg)
+
+
+https://dolarapi.com/docs/argentina/operations/get-dolares.html

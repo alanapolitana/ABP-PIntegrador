@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
+import PriceInUSD from "./PriceInUSD";
 
-function ProductList({ products }) {
+function ProductList({ products, usdBlue, showUSD }) {
   const [animate, setAnimate] = useState(false);
 
   useEffect(() => {
@@ -40,7 +41,15 @@ function ProductList({ products }) {
               className="w-full h-40 object-cover mb-2 rounded"
             />
             <h2 className="text-lg font-bold text-black leading-snug">{product.title}</h2>
-            <p className="text-gray-700 font-medium mb-1">${product.price}</p>
+            <p className="text-gray-700 font-medium mb-1">
+              ${product.price}
+              {showUSD && (
+                <>
+                  {" "}
+                  <PriceInUSD priceARS={product.price} usdRate={usdBlue} type="blue" />
+                </>
+              )}
+            </p>
             <p className="text-sm text-gray-500 line-clamp-2">{product.description}</p>
           </div>
         ))}

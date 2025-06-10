@@ -7,6 +7,7 @@ import { handleExport } from "./components/Exports";
 import StatsCharts from "./components/Charts";
 
 function App() {
+  // Estado principal de productos y filtros
   const [products, setProducts] = useState([]);
   const [search, setSearch] = useState("");
   const [show, setShow] = useState(true);
@@ -21,6 +22,12 @@ function App() {
   const [format, setFormat] = useState("");
   const [showChart, setShowChart] = useState(false);
 
+  // Estado para cotización dólar blue (valor numérico: se usa para calcular el precio en dólares)
+  const [usdBlue, setUsdBlue] = useState(null);
+  // Estado para mostrar/ocultar el precio en dólares (booleano: decide si se visualizan los precios en USD)
+  const [showUSD, setShowUSD] = useState(false);
+
+  // 1. Cargar categorías de productos al montar el componente
   useEffect(() => {
     axios.get("https://dummyjson.com/products/categories")
       .then((res) => {
@@ -36,11 +43,20 @@ function App() {
         }
       })
       .catch((err) => console.error("Error al cargar categorías:", err));
-
   }, []);
 
+  // 2. Cargar cotización del dólar blue al montar el componente (una sola vez)
+  useEffect(() => {
+    axios.get("https://dolarapi.com/v1/dolares")
+      .then((res) => {
+        // Busca la cotización 'blue'
+        const blue = res.data.find(c => c.casa === "blue");
+        setUsdBlue(blue?.venta);
+      })
+      .catch((err) => console.error("Error al obtener cotización dólar:", err));
+  }, []);
 
-  // 2. Cargar productos cuando cambie page o category
+  // 3. Cargar productos cuando cambie page, category o limit
   useEffect(() => {
     let url = "";
     const skip = (page - 1) * limit;
@@ -59,6 +75,7 @@ function App() {
       .catch((err) => console.error("Error al cargar productos:", err));
   }, [page, category, limit]);
 
+  // Alternar modo oscuro/claro
   const toggleDark = () => {
     setDark(!dark);
     containerRef.current.classList.toggle("dark-mode");
@@ -71,10 +88,8 @@ function App() {
       if (!sortField) return 0;
       const valA = a[sortField];
       const valB = b[sortField];
-
       return sortOrder === "asc" ? valA - valB : valB - valA;
     });
-
 
   return (
     /*   Modo Claro oscuro Set */
@@ -87,9 +102,7 @@ function App() {
       <div className="p-4 max-w-7xl mx-auto">
         <h1 className="text-3xl font-bold text-center">Productos</h1>
 
-        
-
-        {/* Seleccion de formatos de descarga */}
+        {/* Selección de formatos de descarga */}
         <select onChange={(e) => setFormat(e.target.value)} value={format}>
           <option value="">Seleccionar formáto</option>
           <option value="json">JSON</option>
@@ -99,8 +112,13 @@ function App() {
 
         {/* <button onClick={handleExport}>Exportar archivo</button> 
         al modularizar pierde acceso al estado local (format,filteredProducts),
-        pasamos explicitamente como argumentos*/}
+        pasamos explícitamente como argumentos */}
         <button onClick={() => handleExport(format, filteredProducts)}>Exportar archivo</button>
+
+        {/* Botón para mostrar/ocultar precio en dólares */}
+        <button className="ml-2 px-2 py-1 border rounded" onClick={() => setShowUSD(!showUSD)}>
+          {showUSD ? "Ocultar precios en dólares" : "Mostrar precios en dólares"}
+        </button>
 
         <Filters
           search={search}
@@ -119,7 +137,8 @@ function App() {
             No se encontraron productos
           </p>
         ) : (
-          <ProductList products={filteredProducts} />
+          // Pasamos usdBlue y showUSD como props para que ProductList pueda calcular y mostrar el precio en dólares si corresponde
+          <ProductList products={filteredProducts} usdBlue={usdBlue} showUSD={showUSD} />
         )}
 
         <br />
@@ -148,7 +167,7 @@ function App() {
             value={limit}
             onChange={(e) => {
               setLimit(Number(e.target.value));
-              setPage(1); // Setea a pagina 1 al volver a renderizar los productos
+              setPage(1); // Setea a página 1 al volver a renderizar los productos
             }}
             className="border px-2 py-1 w-20"
           />
@@ -163,15 +182,11 @@ function App() {
           >
             {show ? "Ocultar estadísticas" : "Mostrar estadísticas"}
           </button>
-
-
         </div>
         <button onClick={() => setShowChart(!showChart)}>
           {showChart ? "Ocultar gráfico" : "Mostrar gráfico"}
         </button>
         {showChart && <StatsCharts products={filteredProducts} />}
-
-
 
         {show && <StatsPanel products={filteredProducts} />}
       </div>
