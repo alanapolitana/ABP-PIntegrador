@@ -95,7 +95,7 @@ export default function StatsCharts({ products }) {
   // 3. Pie: stock
   const stockRanges = [
     { rango: "Alto (≥50)", min: 50, max: Infinity },
-    { rango: "Medio (40-49)", min: 30, max: 49},
+    { rango: "Medio (30-49)", min: 30, max: 49},
     { rango: "Bajo (1-29)", min: 1, max: 29 },
     { rango: "Sin stock", min: 0, max: 0 },
   ];
